@@ -1,14 +1,29 @@
 import { FcGoogle } from "react-icons/fc";
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { auth } from "../../utils/firebase";
+import { useRouter } from "next/Router";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { useEffect } from "react";
 function login() {
+  const route = useRouter();
+  const [user, loading] = useAuthState(auth);
   // sign in with google
   const googleProvider = new GoogleAuthProvider();
   const googleLogin = async () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
+      route.push("/");
     } catch (error) {}
   };
+  useEffect(() => {
+    return () => {
+      if (user) {
+        route.push("/");
+      } else {
+        console.log("login unsuccess");
+      }
+    };
+  }, [user]);
   return (
     <div className="shadow-xl mt-32 p-10 text-gray-700 rounded-lg">
       <h2 className="text-2xl font-medium">Join Today</h2>
