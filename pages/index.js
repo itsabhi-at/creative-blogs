@@ -1,6 +1,13 @@
+import { collection, orderBy, query } from "firebase/firestore";
 import Head from "next/head";
-
+import { useState } from "react";
 export default function Home() {
+  const [allPost, setAllPost] = useState([]);
+  const getPost = async () => {
+    const collectionRef = collection(db, "posts");
+    const q = query(collectionRef, orderBy("timestamp", "desc"));
+  };
+
   return (
     <div>
       <Head>
@@ -9,7 +16,13 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main></main>
+      <main>
+        <div className="text-lg font-medium my-12">
+          <h2 className="font-medium capitalize">
+            see what other people are saying
+          </h2>
+        </div>
+      </main>
     </div>
   );
 }
