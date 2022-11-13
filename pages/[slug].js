@@ -15,14 +15,14 @@ import Message from "../components/Message";
 import { auth, db } from "../utils/firebase";
 
 function Details() {
-  const router = useRouter();
-  const routeData = router.query;
+  const route = useRouter();
+  const routeData = route.query;
   const [message, setMessage] = useState("");
   const [allMessage, setAllMessage] = useState([]);
 
   // ** submit a message
   const submitMessage = async () => {
-    if (!auth.currentUser) return router.push("/auth/login");
+    if (!auth.currentUser) return route.push("/auth/login");
     if (!message) {
       toast.error("Dont leave a empty message", {
         position: toast.POSITION.TOP_CENTER,
@@ -51,9 +51,9 @@ function Details() {
     return unsubscribe;
   };
   useEffect(() => {
-    if (!router.isReady) return;
+    if (!route.isReady) return;
     getComments();
-  }, [router.isReady]);
+  }, [route.isReady]);
   return (
     <div>
       <Message {...routeData}></Message>
