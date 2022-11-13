@@ -45,14 +45,16 @@ function Details() {
   const getComments = async () => {
     const docRef = doc(db, "posts", routeData.id);
     // const q = query(docRef, orderBy("timestamp", "asc"));
-    const unsubscribe = onSnapshot(docRef, (snapshot) =>
-      setAllMessage(snapshot.data().comments)
-    );
+    const unsubscribe = onSnapshot(docRef, (snapshot) => {
+      setAllMessage(snapshot.data()?.comments);
+    });
     return unsubscribe;
   };
   useEffect(() => {
     if (!route.isReady) return;
-    getComments();
+    else {
+      getComments();
+    }
   }, [route.isReady]);
   return (
     <div>
