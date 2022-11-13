@@ -2,18 +2,25 @@ import { auth, db } from "../utils/firebase";
 import { useRouter } from "next/Router";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useEffect, useState } from "react";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  doc,
+  serverTimestamp,
+  updateDoc,
+} from "firebase/firestore";
 import { toast } from "react-toastify";
 
 function post() {
   const [post, setPost] = useState({ description: " " });
   const [user, loading] = useAuthState(auth);
   const route = useRouter();
+  const routeData = route.query;
   // submit post
   const submitPost = async (e) => {
     e.preventDefault();
 
-    if (!post.description) {
+    if (post.description.trim().length === 0) {
       toast.error("Description Not Available!!", {
         position: toast.POSITION.TOP_RIGHT,
         autoClose: 2000,
@@ -29,18 +36,45 @@ function post() {
 
       return;
     }
-    // make a new collection
-    const collectionRef = new collection(db, "posts");
-    await addDoc(collectionRef, {
-      ...post,
-      timestamp: serverTimestamp(),
-      user: user.uid,
-      avatar: user.photoURL,
-      username: user.displayName,
-    });
-    setPost({ ...post, description: "" });
-    return route.push("/");
+    //** update post/ edit post */
+    if (post?.hasOwnProperty("id")) {
+      const docRef = doc(db, "posts", post.id);
+      const updatedPost = { ...post, timestamp: serverTimestamp() };
+      await updateDoc(docRef, updatedPost);
+      toast.success("Post has been updated successfully");
+      return route.push("/");
+    }
+    //** make a new collection/post */
+    else {
+      const collectionRef = new collection(db, "posts");
+      await addDoc(collectionRef, {
+        ...post,
+        timestamp: serverTimestamp(),
+        user: user.uid,
+        avatar: user.photoURL,
+        username: user.displayName,
+      });
+      setPost({ ...post, description: "" });
+      toast.success("Post has been added successfully");
+      return route.push("/");
+    }
   };
+
+  // ** check user
+  const checkUser = async () => {
+    if (loading) {
+      return <div>Loading...</div>;
+    }
+    if (!user) {
+      return route.push("/auth/login");
+    }
+    if (routeData.id) {
+      setPost({ description: routeData.description, id: routeData.id });
+    }
+  };
+  useEffect(() => {
+    checkUser();
+  }, [user, loading]);
   return (
     <div>
       <form
@@ -48,7 +82,9 @@ function post() {
         action=""
         className="my-20 p-12 shadow-lg rounded-lg max-w-md mx-auto"
       >
-        <h1 className="text-2xl font-bold">create a new post</h1>
+        <h1 className="text-2xl font-bold">
+          {post.hasOwnProperty("id") ? "Edit your post" : "create a new post"}
+        </h1>
         <div className="py-2">
           <h3 className="text-lg font-medium py-2">Description</h3>
           <textarea

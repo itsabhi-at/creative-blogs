@@ -1,13 +1,28 @@
-import { collection, orderBy, query } from "firebase/firestore";
+import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 import Head from "next/head";
-import { useState } from "react";
+import Link from "next/link";
+import { useState, useEffect } from "react";
+import Message from "../components/Message";
+import { db } from "../utils/firebase";
+
 export default function Home() {
   const [allPost, setAllPost] = useState([]);
   const getPost = async () => {
     const collectionRef = collection(db, "posts");
     const q = query(collectionRef, orderBy("timestamp", "desc"));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      setAllPost(
+        snapshot.docs.map((doc) => ({
+          ...doc.data(),
+          id: doc.id,
+        }))
+      );
+    });
+    return unsubscribe;
   };
-
+  useEffect(() => {
+    getPost();
+  }, []);
   return (
     <div>
       <Head>
@@ -18,9 +33,19 @@ export default function Home() {
 
       <main>
         <div className="text-lg font-medium my-12">
-          <h2 className="font-medium capitalize">
+          <h2 className="font-medium capitalize mb-4">
             see what other people are saying
           </h2>
+          {allPost.map((post) => (
+            <Message key={post.id} {...post}>
+              <Link href={{ pathname: `/${post.id}`, query: { ...post } }}>
+                <button className="mt-4">
+                  {post.comments?.length > 0 ? post.comments?.length : 0}{" "}
+                  comments
+                </button>
+              </Link>
+            </Message>
+          ))}
         </div>
       </main>
     </div>
