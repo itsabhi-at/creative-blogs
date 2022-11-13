@@ -1,5 +1,5 @@
 import { auth, db } from "../utils/firebase";
-import { useRouter } from "next/Router";
+import { useRouter } from "next/router";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useEffect, useState } from "react";
 import {

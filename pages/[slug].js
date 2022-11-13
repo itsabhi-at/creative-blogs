@@ -8,7 +8,7 @@ import {
   Timestamp,
   updateDoc,
 } from "firebase/firestore";
-import { useRouter } from "next/Router";
+import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import Message from "../components/Message";
